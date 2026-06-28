@@ -152,13 +152,27 @@ on public.orders
 for each row
 execute function public.order_log_create();
 
+insert into customers(full_name, email, balance)
+values ('Hello Kitty', 'hello.kitty@mail.com', 250);
 
 
+insert into products(product_name, price, stock_quantity)
+values ('Headphones', 100, 5);
 
 
+call public.create_order(5);
+call public.create_order(6);
 
+call public.add_product_to_order(1, 4, 3);
+call public.add_product_to_order(1, 7, 3);
+call public.add_product_to_order(3, 6, 7);
+call public.add_product_to_order(2, 2, 0);
+call public.add_product_to_order(5, 6, 2);
 
-
+select * from orders;
+select * from order_items;
+select * from products;
+select * from order_log;
 
 
 
