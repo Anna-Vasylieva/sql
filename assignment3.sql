@@ -174,5 +174,36 @@ select * from order_items;
 select * from products;
 select * from order_log;
 
+explain analyze
+select
+    p.product_name,
+    oi.quantity,
+    oi.price,
+    oi.quantity * oi.price as total_price
+from products p
+join order_items oi
+    on p.product_id = oi.product_id
+where oi.order_id = 1;
 
+--BONUS 3
+
+--Hash Join  (cost=27.09..41.32 rows=7 width=270) (actual time=0.113..0.117 rows=4.00 loops=1)
+--  Hash Cond: (p.product_id = oi.product_id)
+--  Buffers: shared hit=2
+--  ->  Seq Scan on products p  (cost=0.00..13.00 rows=300 width=222) (actual time=0.035..0.036 rows=6.00 loops=1)
+--        Buffers: shared hit=1
+--  ->  Hash  (cost=27.00..27.00 rows=7 width=24) (actual time=0.028..0.028 rows=4.00 loops=1)
+--        Buckets: 1024  Batches: 1  Memory Usage: 9kB
+--        Buffers: shared hit=1
+--        ->  Seq Scan on order_items oi  (cost=0.00..27.00 rows=7 width=24) (actual time=0.013..0.015 rows=4.00 loops=1)
+--              Filter: (order_id = 1)
+--              Rows Removed by Filter: 5
+--              Buffers: shared hit=1
+--Planning Time: 0.303 ms
+--Execution Time: 0.238 ms
+
+--Спочатку  Seq Scan читає таблицю order_items та відфільтровує ті рядки де order_id = 1.
+--Потім Hash створює тимчасову таблицю де тільки відфільтровані рядки.
+--Після знову Seq Scan читає таблицю, але вже products де вже Hash Join порівнює індекси p.product_id = oi.product_id
+--та з'єднує підходящі записи.
 
